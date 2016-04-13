@@ -11,7 +11,7 @@ options:
     path:
         required: true
         description:
-            - Test file to validate. Must on the remote machine.
+            - Test file to validate. Must be on the remote machine.
     format:
         required: false
         description:
