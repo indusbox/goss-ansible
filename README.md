@@ -1,17 +1,17 @@
 
 # ansible-goss
 
-Launch Goss (https://github.com/aelsabbahy/goss) test file with Ansible.
+Launch [Goss](https://github.com/aelsabbahy/goss) test file with Ansible.
 
 ## Installation
 
-Copy the **goss.py** file into your Ansible **library** directory. That's it !
+Copy the `goss.py` file into your Ansible `library` directory. That's it!
 
 ## Quick start
 
 ### Simple example
 
-Validate a Goss test file (the test file must be on the remote machine) :
+Validate a Goss test file (the test file must be on the remote machine):
 
 ```yaml
 - name: test goss file
@@ -19,11 +19,12 @@ Validate a Goss test file (the test file must be on the remote machine) :
     path: "/path/to/file.yml"
 ```
 
-If a test fail, the module returns an error. if you want to ignore this error, add **ignore_errors: yes** on the task.
+If a test fails, the module returns an error.
+If you want to ignore this error, add `ignore_errors: yes` on the task.
 
-### output format and output file
+### Output format and output file
 
-You can change the output format in a format supported by goss with the option **format** :
+You can change the output format with the `format` option:
 
 ```yaml
 - name: test goss file
@@ -32,7 +33,9 @@ You can change the output format in a format supported by goss with the option *
     format: json
 ```
 
-You can save the output of the goss command in a file with the option **output_file**:
+See all the supported output format: https://github.com/aelsabbahy/goss#supported-output-formats
+
+You can also save the output of the Goss command in a file with the `output_file` option:
 
 ```yaml
 - name: test goss file
@@ -42,9 +45,10 @@ You can save the output of the goss command in a file with the option **output_f
     output_file : /my/output/file.json
 ```
 
-### changed = False
+### Changed = False
 
-We use this module for testing/validation purposes. Actually, this module always return **changed = False**, even with the **output_file** option.
+We use this module for testing/validation purposes.
+Actually, this module always return `changed = False`, even with the `output_file` option.
 
 ## Ansible versions
 
@@ -56,7 +60,6 @@ Tested with :
 ## Module documentation
 
 ```yaml
-
 description:
     - Launch goss test. Always changed = False if success.
 options:
@@ -85,5 +88,4 @@ examples:
         format: json
         output_file : /my/output/file-{{ item }}
         with_items: "{{ goss_files }}"
-
 ```
