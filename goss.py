@@ -1,5 +1,7 @@
 #!/usr/bin/env python
 
+import os
+
 DOCUMENTATION = '''
 ---
 module: goss
@@ -15,19 +17,19 @@ options:
     format:
         required: false
         description:
-            - change the output goss format. 
-            - Goss format list : goss v --format => [documentation json junit nagios rspecish tap]. 
+            - change the output goss format.
+            - Goss format list : goss v --format => [documentation json junit nagios rspecish tap].
             - Default: None
     output_file:
         required: false
         description:
             - save the result of the goss command in a file whose path is output_file
 examples:
-    - name: test goss file      
+    - name: test goss file
       goss:
         path: "/path/to/file.yml"
 
-    - name: test goss files      
+    - name: test goss files
       goss:
         path: "{{ item }}"
         format: json
@@ -60,9 +62,9 @@ def main():
         supports_check_mode=False
     )
 
-    file_path = module.params['path']
+    file_path = os.path.expanduser(module.params['path'])
     output_format = module.params['format']
-    output_file_path = module.params['output_file']
+    output_file_path = os.path.expanduser(module.params['output_file'])
 
     (rc, out, err) = check(module, file_path, output_format)
 
