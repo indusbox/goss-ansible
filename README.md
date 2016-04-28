@@ -19,7 +19,7 @@ Validate a Goss test file (the test file must be on the remote machine) :
     path: "/path/to/file.yml"
 ```
 
-If a test fail, the module return an error. if you want to ignore this error, add **ignore_errors: yes** on the task.
+If a test fail, the module returns an error. if you want to ignore this error, add **ignore_errors: yes** on the task.
 
 ### output format and output file
 
@@ -45,6 +45,13 @@ You can save the output of the goss command in a file with the option **output_f
 ### changed = False
 
 We use this module for testing/validation purposes. Actually, this module always return **changed = False**, even with the **output_file** option.
+
+## Ansible versions
+
+Tested with :
+
+- Ansible 1.8.2
+- Ansible 2.0.2
 
 ## Module documentation
 
