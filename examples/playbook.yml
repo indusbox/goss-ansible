@@ -1,0 +1,48 @@
+---
+
+# success
+- hosts: all
+  connection: local
+  tasks:
+    - name: execute goss test file.
+      goss:
+        path: "~/goss/goss.yaml"
+    - name: Execute goss test file and write result on output_file
+      goss:
+        path: "~/goss/goss.yaml"
+        output_file: "~/goss/result.yaml"
+    - name: Execute test file with json output
+      goss:
+        path: "~/goss/goss.yaml"
+        format: "json"
+# errors
+- hosts: all
+  connection: local
+  tasks:
+    - name: Error because path is a directory
+      goss:
+        path: "~/goss/"
+      ignore_errors: True
+    - name: Error because path does not exists
+      goss:
+        path: "~/goss/toto.yaml"
+      ignore_errors: True
+    - name: Error because output_file is a directory
+      goss:
+        path: "~/goss/goss.yaml"
+        output_file: "~/goss/"
+      ignore_errors: True
+    - name: Error because goss_root not readable
+      goss:
+        path: "~/goss/goss_root.yaml"
+      ignore_errors: True
+    - name: Error because output_file not writable
+      goss:
+        path: "~/goss/goss.yaml"
+        output_file: "/root/result"
+      ignore_errors: True
+    - name: Error because output_file directory not exists
+      goss:
+        path: "~/goss/goss.yaml"
+        output_file: "~/goss/notexists/result"
+      ignore_errors: True
