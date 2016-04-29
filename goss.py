@@ -1,5 +1,7 @@
 #!/usr/bin/env python
 
+import os
+
 DOCUMENTATION = '''
 ---
 module: goss
@@ -15,19 +17,19 @@ options:
     format:
         required: false
         description:
-            - change the output goss format. 
-            - Goss format list : goss v --format => [documentation json junit nagios rspecish tap]. 
-            - Default: None
+            - change the output goss format.
+            - Goss format list : goss v --format => [documentation json junit nagios rspecish tap].
+            - Default: rspecish
     output_file:
         required: false
         description:
             - save the result of the goss command in a file whose path is output_file
 examples:
-    - name: test goss file      
+    - name: test goss file
       goss:
         path: "/path/to/file.yml"
 
-    - name: test goss files      
+    - name: test goss files
       goss:
         path: "{{ item }}"
         format: json
@@ -36,12 +38,12 @@ examples:
 '''
 
 # launch goss validate command on the file
-def check(module, file_path, output_format):
+def check(module, test_file_path, output_format):
     cmd = ""
     if output_format != None:
-        cmd = "goss -g {0} v --format {1}".format(file_path, output_format)
+        cmd = "goss -g {0} v --format {1}".format(test_file_path, output_format)
     else:
-        cmd = "goss -g {0} v".format(file_path)
+        cmd = "goss -g {0} v".format(test_file_path)
     return module.run_command(cmd)
 
 #write goss result to output_file_path
@@ -60,13 +62,43 @@ def main():
         supports_check_mode=False
     )
 
-    file_path = module.params['path']
-    output_format = module.params['format']
+    test_file_path = module.params['path'] # test file path
+    output_format = module.params['format'] # goss output format
     output_file_path = module.params['output_file']
 
-    (rc, out, err) = check(module, file_path, output_format)
+    if test_file_path == None:
+        module.fail_json(msg="test file path is null")
 
-    output_file(output_file_path, out)
+    test_file_path = os.path.expanduser(test_file_path)
+
+    # test if access to test file is ok
+
+    if not os.access(test_file_path, os.R_OK):
+        module.fail_json(msg="Test file %s not readable" % (test_file_path))
+
+    # test if test file is not a dir
+    if os.path.isdir(test_file_path):
+        module.fail_json(msg="Test file must be a file ! : %s" % (test_file_path))
+
+    (rc, out, err) = check(module, test_file_path, output_format)
+
+    if output_file_path != None:
+        output_file_path = os.path.expanduser(output_file_path)
+        # check if output_file is a file
+        if output_file_path.endswith(os.sep):
+            module.fail_json(msg="output_file must be a file. Actually :  %s " % (output_file_path))
+
+        output_dirname = os.path.dirname(output_file_path)
+
+        # check if output directory exists
+        if not os.path.exists(output_dirname):
+            module.fail_json(msg="directory %s does not exists" % (output_dirname))
+
+        # check if writable
+        if not os.access(os.path.dirname(output_file_path), os.W_OK):
+            module.fail_json(msg="Destination %s not writable" % (os.path.dirname(output_file_path)))
+        # write goss result on the output file
+        output_file(output_file_path, out)
 
     if rc is not None and rc != 0:
         error_msg = "err : {0} ; out : {1}".format(err, out)
