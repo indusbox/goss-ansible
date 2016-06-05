@@ -1,6 +1,6 @@
 #!/usr/bin/env python
-
 import os
+from ansible.module_utils.basic import *
 
 DOCUMENTATION = '''
 ---
@@ -37,36 +37,39 @@ examples:
       with_items: "{{ goss_files }}"
 '''
 
+
 # launch goss validate command on the file
 def check(module, test_file_path, output_format):
     cmd = ""
-    if output_format != None:
+    if output_format is not None:
         cmd = "goss -g {0} v --format {1}".format(test_file_path, output_format)
     else:
         cmd = "goss -g {0} v".format(test_file_path)
     return module.run_command(cmd)
 
-#write goss result to output_file_path
+
+# write goss result to output_file_path
 def output_file(output_file_path, out):
-    if output_file_path != None:
+    if output_file_path is not None:
         with open(output_file_path, 'w') as output_file:
             output_file.write(out)
 
+
 def main():
     module = AnsibleModule(
-        argument_spec = dict(
-            path = dict(required=True, type='str'),
-            format = dict(required=False, type='str'),
-            output_file = dict(required=False, type='str'),
+        argument_spec=dict(
+            path=dict(required=True, type='str'),
+            format=dict(required=False, type='str'),
+            output_file=dict(required=False, type='str'),
         ),
         supports_check_mode=False
     )
 
-    test_file_path = module.params['path'] # test file path
-    output_format = module.params['format'] # goss output format
+    test_file_path = module.params['path']  # test file path
+    output_format = module.params['format']  # goss output format
     output_file_path = module.params['output_file']
 
-    if test_file_path == None:
+    if test_file_path is None:
         module.fail_json(msg="test file path is null")
 
     test_file_path = os.path.expanduser(test_file_path)
@@ -82,11 +85,12 @@ def main():
 
     (rc, out, err) = check(module, test_file_path, output_format)
 
-    if output_file_path != None:
+    if output_file_path is not None:
         output_file_path = os.path.expanduser(output_file_path)
         # check if output_file is a file
         if output_file_path.endswith(os.sep):
-            module.fail_json(msg="output_file must be a file. Actually :  %s " % (output_file_path))
+            module.fail_json(msg="output_file must be a file. Actually :  %s "
+                             % (output_file_path))
 
         output_dirname = os.path.dirname(output_file_path)
 
@@ -110,6 +114,4 @@ def main():
 
     module.exit_json(**result)
 
-# import module snippets
-from ansible.module_utils.basic import *
 main()
