@@ -67,6 +67,10 @@ options:
         required: true
         description:
             - Test file to validate. Must be on the remote machine.
+    goss_path:
+        required: false
+        description:
+            - change the path location for the goss executable. default is "goss" (no absolute path)
     format:
         required: false
         description:
@@ -82,10 +86,15 @@ examples:
       goss:
         path: "/path/to/file.yml"
 
+    - name: test goss file
+      goss:
+        path: "/path/to/file.yml"
+        goss_path: "/usr/local/bin/goss"
+
     - name: test goss files
       goss:
         path: "{{ item }}"
         format: json
         output_file : /my/output/file-{{ item }}
         with_items: "{{ goss_files }}"
-```
+

@@ -14,6 +14,10 @@ options:
         required: true
         description:
             - Test file to validate. Must be on the remote machine.
+    goss_path:
+        required: false
+        description:
+            - change the path location for the goss executable. default is "goss" (no absolute path)
     format:
         required: false
         description:
@@ -29,6 +33,11 @@ examples:
       goss:
         path: "/path/to/file.yml"
 
+    - name: test goss file
+      goss:
+        path: "/path/to/file.yml"
+        goss_path: "/usr/local/bin/goss"
+
     - name: test goss files
       goss:
         path: "{{ item }}"
@@ -39,12 +48,12 @@ examples:
 
 
 # launch goss validate command on the file
-def check(module, test_file_path, output_format):
+def check(module, test_file_path, output_format, goss_path):
     cmd = ""
     if output_format is not None:
-        cmd = "goss -g {0} v --format {1}".format(test_file_path, output_format)
+        cmd = "{0} -g {1} v --format {2}".format(goss_path, test_file_path, output_format)
     else:
-        cmd = "goss -g {0} v".format(test_file_path)
+        cmd = "{0} -g {1} v".format(goss_path, test_file_path)
     return module.run_command(cmd)
 
 
@@ -61,6 +70,7 @@ def main():
             path=dict(required=True, type='str'),
             format=dict(required=False, type='str'),
             output_file=dict(required=False, type='str'),
+            goss_path=dict(required=False, default='goss', type='str'),
         ),
         supports_check_mode=False
     )
@@ -68,6 +78,7 @@ def main():
     test_file_path = module.params['path']  # test file path
     output_format = module.params['format']  # goss output format
     output_file_path = module.params['output_file']
+    goss_path = module.params['goss_path']
 
     if test_file_path is None:
         module.fail_json(msg="test file path is null")
@@ -83,7 +94,7 @@ def main():
     if os.path.isdir(test_file_path):
         module.fail_json(msg="Test file must be a file ! : %s" % (test_file_path))
 
-    (rc, out, err) = check(module, test_file_path, output_format)
+    (rc, out, err) = check(module, test_file_path, output_format, goss_path)
 
     if output_file_path is not None:
         output_file_path = os.path.expanduser(output_file_path)
