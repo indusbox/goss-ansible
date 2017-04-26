@@ -35,7 +35,7 @@ You can change the output format with the `format` option:
 
 See all the supported output format: https://github.com/aelsabbahy/goss#supported-output-formats
 
-You can also save the output of the Goss command in a file with the `output_file` option:
+You can also save the output of the `goss` command in a file with the `output_file` option:
 
 ```yaml
 - name: test goss file
@@ -48,7 +48,7 @@ You can also save the output of the Goss command in a file with the `output_file
 ### Changed = False
 
 We use this module for testing/validation purposes.
-Actually, this module always return `changed = False`, even with the `output_file` option.
+Therefore, this module always returns `changed = false`, even with the `output_file` option.
 
 ## Ansible versions
 
@@ -56,45 +56,58 @@ Tested with :
 
 - Ansible 1.8.2
 - Ansible 2.0.2
+- Ansible 2.2.2
 
 ## Module documentation
 
 ```yaml
+module: goss
+author: Mathieu Corbin
+short_description: Launch goss (https://github.com/aelsabbahy/goss) tests
 description:
-    - Launch goss test. Always changed = False if success.
+  - Launch goss tests.
+    This module always returns `changed = false` for idempotence.
 options:
-    path:
-        required: true
-        description:
-            - Test file to validate. Must be on the remote machine.
-    goss_path:
-        required: false
-        description:
-            - change the path location for the goss executable. default is "goss" (no absolute path)
-    format:
-        required: false
-        description:
-            - change the output goss format.
-            - Goss format list : goss v --format => [documentation json junit nagios rspecish tap].
-            - Default: None
-    output_file:
-        required: false
-        description:
-            - save the result of the goss command in a file whose path is output_file
+  path:
+    required: true
+    description:
+      - Test file to validate.
+        The test file must be on the remote machine.
+  goss_path:
+    required: false
+    description:
+      - Path location for the goss executable.
+        Default is "goss" (ie.`no absolute path,  goss executable must be available in $PATH).
+  format:
+    required: false
+    description:
+      - Output goss format.
+        Goss format list : goss v --format => [documentation json junit nagios nagios_verbose rspecish tap silent].
+        Default is "rspecish".
+  output_file:
+    required: false
+    description:
+      - Save the result of the goss command in a file whose path is output_file
+
 examples:
-    - name: test goss file
-      goss:
-        path: "/path/to/file.yml"
+  - name: run goss against the gossfile /path/to/file.yml
+    goss:
+      path: "/path/to/file.yml"
 
-    - name: test goss file
-      goss:
-        path: "/path/to/file.yml"
-        goss_path: "/usr/local/bin/goss"
+  - name: run goss against the gossfile /path/to/file.yml with nagios output
+    goss:
+      path: "/path/to/file.yml"
+      format: "nagios"
 
-    - name: test goss files
-      goss:
-        path: "{{ item }}"
-        format: json
-        output_file : /my/output/file-{{ item }}
-        with_items: "{{ goss_files }}"
+  - name: run /usr/local/bin/goss against the gossfile /path/to/file.yml
+    goss:
+      path: "/path/to/file.yml"
+      goss_path: "/usr/local/bin/goss"
+
+  - name: run goss against multiple gossfiles and write the result in JSON format to /my/output/ for each file
+    goss:
+      path: "{{ item }}"
+      format: json
+      output_file : /my/output/{{ item }}
+    with_items: "{{ goss_files }}"
 ```
