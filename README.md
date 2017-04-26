@@ -97,4 +97,4 @@ examples:
         format: json
         output_file : /my/output/file-{{ item }}
         with_items: "{{ goss_files }}"
-
+```
