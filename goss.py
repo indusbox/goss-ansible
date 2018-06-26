@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# FROM: https://github.com/indusbox/goss-ansible
 import os
 from ansible.module_utils.basic import *
 
@@ -21,6 +22,10 @@ options:
     description:
       - Path location for the goss executable.
         Default is "goss" (ie.`no absolute path,  goss executable must be available in $PATH).
+  vars_path:
+    required: false
+    description:
+      - Path location for a variables YAML/JSON file to use as templating inputs.
   format:
     required: false
     description:
@@ -31,22 +36,21 @@ options:
     required: false
     description:
       - Save the result of the goss command in a file whose path is output_file
-
 examples:
   - name: run goss against the gossfile /path/to/file.yml
     goss:
       path: "/path/to/file.yml"
-
   - name: run goss against the gossfile /path/to/file.yml with nagios output
     goss:
       path: "/path/to/file.yml"
       format: "nagios"
-
   - name: run /usr/local/bin/goss against the gossfile /path/to/file.yml
     goss:
       path: "/path/to/file.yml"
       goss_path: "/usr/local/bin/goss"
-
+  - name: run /usr/local/bin/goss with a variables file
+    goss:
+      vars_path: "/path/to/file.yml"
   - name: run goss against multiple gossfiles and write the result in JSON format to /my/output/ for each file
     goss:
       path: "{{ item }}"
@@ -57,12 +61,17 @@ examples:
 
 
 # launch goss validate command on the file
-def check(module, test_file_path, output_format, goss_path):
-    cmd = ""
+def check(module, test_file_path, output_format, goss_path, vars_path):
+    cmd = "{0} -g {1}".format(goss_path, test_file_path)
+    # goss parent command flags
+    if vars_path is not None:
+        cmd += " --vars {0}".format(vars_path)
+
+    # validate sub-command flags
+    cmd += " validate"
     if output_format is not None:
-        cmd = "{0} -g {1} v --format {2}".format(goss_path, test_file_path, output_format)
-    else:
-        cmd = "{0} -g {1} v".format(goss_path, test_file_path)
+        cmd += " --format {0}".format(output_format)
+
     return module.run_command(cmd)
 
 
@@ -79,6 +88,7 @@ def main():
             path=dict(required=True, type='str'),
             format=dict(required=False, type='str'),
             output_file=dict(required=False, type='str'),
+            vars_path=dict(required=False, type='str'),
             goss_path=dict(required=False, default='goss', type='str'),
         ),
         supports_check_mode=False
@@ -88,6 +98,7 @@ def main():
     output_format = module.params['format']  # goss output format
     output_file_path = module.params['output_file']
     goss_path = module.params['goss_path']
+    vars_path = module.params['vars_path']
 
     if test_file_path is None:
         module.fail_json(msg="test file path is null")
@@ -95,7 +106,6 @@ def main():
     test_file_path = os.path.expanduser(test_file_path)
 
     # test if access to test file is ok
-
     if not os.access(test_file_path, os.R_OK):
         module.fail_json(msg="Test file %s not readable" % (test_file_path))
 
@@ -103,7 +113,7 @@ def main():
     if os.path.isdir(test_file_path):
         module.fail_json(msg="Test file must be a file ! : %s" % (test_file_path))
 
-    (rc, out, err) = check(module, test_file_path, output_format, goss_path)
+    (rc, out, err) = check(module, test_file_path, output_format, goss_path, vars_path)
 
     if output_file_path is not None:
         output_file_path = os.path.expanduser(output_file_path)
@@ -135,3 +145,4 @@ def main():
     module.exit_json(**result)
 
 main()
+
