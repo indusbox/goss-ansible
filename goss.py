@@ -62,7 +62,7 @@ examples:
 
 # launch goss validate command on the file
 def check(module, test_file_path, output_format, goss_path, vars_path):
-    cmd = "{0} -g {1}".format(goss_path, test_file_path)
+    cmd = "{0} --gossfile {1}".format(goss_path, test_file_path)
     # goss parent command flags
     if vars_path is not None:
         cmd += " --vars {0}".format(vars_path)
