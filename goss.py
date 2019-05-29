@@ -36,6 +36,16 @@ options:
     required: false
     description:
       - Save the result of the goss command in a file whose path is output_file
+  retry_timeout:
+    required: false
+    description:
+      - Retry on failure so long as elapsed + sleep time is less than this.
+        Default is "0s".
+  sleep:
+    required: false
+    description:
+      - Time to sleep between retries, only active when retry_timeout is set
+        Default is "1s".
 examples:
   - name: run goss against the gossfile /path/to/file.yml
     goss:
@@ -61,14 +71,14 @@ examples:
 
 
 # launch goss validate command on the file
-def check(module, test_file_path, output_format, goss_path, vars_path):
+def check(module, test_file_path, output_format, goss_path, vars_path, retry_timeout, sleep):
     cmd = "{0} --gossfile {1}".format(goss_path, test_file_path)
     # goss parent command flags
     if vars_path is not None:
         cmd += " --vars {0}".format(vars_path)
 
     # validate sub-command flags
-    cmd += " validate"
+    cmd += " validate --retry-timeout {} --sleep {}".format(retry_timeout, sleep)
     if output_format is not None:
         cmd += " --format {0}".format(output_format)
 
@@ -90,6 +100,8 @@ def main():
             output_file=dict(required=False, type='str'),
             vars_path=dict(required=False, type='str'),
             goss_path=dict(required=False, default='goss', type='str'),
+            retry_timeout=dict(required=False, default='0s', type='str'),
+            sleep=dict(required=False, default='1s', type='str'),
         ),
         supports_check_mode=False
     )
@@ -99,6 +111,8 @@ def main():
     output_file_path = module.params['output_file']
     goss_path = module.params['goss_path']
     vars_path = module.params['vars_path']
+    retry_timeout = module.params['retry_timeout']
+    sleep = module.params['sleep']
 
     if test_file_path is None:
         module.fail_json(msg="test file path is null")
@@ -113,7 +127,7 @@ def main():
     if os.path.isdir(test_file_path):
         module.fail_json(msg="Test file must be a file ! : %s" % (test_file_path))
 
-    (rc, out, err) = check(module, test_file_path, output_format, goss_path, vars_path)
+    (rc, out, err) = check(module, test_file_path, output_format, goss_path, vars_path, retry_timeout, sleep)
 
     if output_file_path is not None:
         output_file_path = os.path.expanduser(output_file_path)
