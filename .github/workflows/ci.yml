@@ -1,0 +1,25 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - '*'
+jobs:
+  ci:
+    runs-on: ubuntu-20.04
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Install python 3.8
+      uses: actions/setup-python@v2
+      with:
+        python-version: 3.8
+    - name: Install development dependencies
+      run: if [ -f requirements_dev.txt ]; then pip install -r requirements_dev.txt; fi
+    - name: Lint with flake8
+      run: flake8 .
+
+    
