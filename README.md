@@ -1,6 +1,8 @@
 
 # ansible-goss
 
+[![CI](https://github.com/indusbox/goss-ansible/actions/workflows/ci.yml/badge.svg)](https://github.com/indusbox/goss-ansible/actions/workflows/ci.yml)
+
 Launch [Goss](https://github.com/aelsabbahy/goss) test file with Ansible.
 
 ## Installation
