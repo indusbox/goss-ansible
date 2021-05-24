@@ -3,7 +3,7 @@
 
 import os
 
-from ansible.module_utils.basic import *
+from ansible.module_utils.basic import AnsibleModule
 
 
 DOCUMENTATION = '''
@@ -119,7 +119,7 @@ def run_module():
 
     if output_file_path is not None:
         output_file_path = os.path.expanduser(output_file_path)
-        
+
         if output_file_path.endswith(os.sep):
             module.fail_json(msg=f'output_file { output_file_path } must be a file')
 

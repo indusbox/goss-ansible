@@ -1,0 +1,28 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - '*'
+jobs:
+  ci:
+    runs-on: ubuntu-20.04
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Install python 3.8.1
+      uses: gabrielfalcao/pyenv-action@v7
+      with:
+        default: 3.8.6
+        command: pip install -U pip  # upgrade pip after installing python
+    - name: Create virtualenv for python 3.8.1
+      run: pyenv local 3.8.6
+    - name: Install development dependencies
+      run: pip install -r requirements_dev.txt
+    - name: Lint
+      run: flake8 goss.py
+
+    
