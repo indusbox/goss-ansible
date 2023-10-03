@@ -134,7 +134,7 @@ def run_module():
         write_result(output_file_path, out)
 
     if rc is not None and rc != 0:
-        error_msg = 'err : { err } ; out : { out }'
+        error_msg = f'err : { err } ; out : { out }'
         module.fail_json(msg=error_msg)
 
     module.exit_json(stdout=out, changed=False)
