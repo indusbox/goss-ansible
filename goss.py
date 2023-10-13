@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # FROM: https://github.com/indusbox/goss-ansible
-
+'''  Launch goss (https://github.com/aelsabbahy/goss) tests '''
 import os
 
 from ansible.module_utils.basic import AnsibleModule
@@ -85,11 +85,14 @@ def write_result(output_file_path, out):
     Write goss result to output_file_path
     """
     if output_file_path is not None:
-        with open(output_file_path, 'w') as output_file:
+        with open(output_file_path, 'w', encoding="utf-8") as output_file:
             output_file.write(out)
 
 
 def run_module():
+    """
+    Launch goss tests
+    """
     module = AnsibleModule(
         argument_spec=dict(
             path=dict(required=True, type='str'),
