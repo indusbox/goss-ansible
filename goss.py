@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/python
 # FROM: https://github.com/indusbox/goss-ansible
 '''  Launch goss (https://github.com/aelsabbahy/goss) tests '''
 import os
